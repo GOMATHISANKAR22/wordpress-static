@@ -302,8 +302,8 @@ public_ip=$(aws ec2 describe-network-interfaces --filters Name=addresses.private
 echo "Public IP is: $public_ip"
 
 # Update DNS record for domain
-update_response=$(aws route53 change-resource-record-sets --hosted-zone-id ${CONTAINER_DNS_ZONE} --change-batch "{  \"Comment\": \"Update wordpress endpoint with public IP\",  \"Changes\": [    {      \"Action\": \"UPSERT\",      \"ResourceRecordSet\": {        \"Name\": \"${CONTAINER_DNS}\",        \"Type\": \"A\",        \"TTL\": "60",        \"ResourceRecords\": [          {            \"Value\": \"${public_ip}\"          }        ]      }    }  ]}" --region $WPSTATIC_REGION)
-echo "$update_response"
+#update_response=$(aws route53 change-resource-record-sets --hosted-zone-id ${CONTAINER_DNS_ZONE} --change-batch "{  \"Comment\": \"Update wordpress endpoint with public IP\",  \"Changes\": [    {      \"Action\": \"UPSERT\",      \"ResourceRecordSet\": {        \"Name\": \"${CONTAINER_DNS}\",        \"Type\": \"A\",        \"TTL\": "60",        \"ResourceRecords\": [          {            \"Value\": \"${public_ip}\"          }        ]      }    }  ]}" --region $WPSTATIC_REGION)
+#echo "$update_response"
 
 # Check if first time launch and install basic site if so
 if ! sudo -u www-data wp core is-installed; then
