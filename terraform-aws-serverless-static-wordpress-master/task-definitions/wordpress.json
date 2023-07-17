@@ -10,8 +10,8 @@
         {"name": "WPSTATIC_DEST", "value": "${wp_dest}"},
         {"name": "WPSTATIC_REGION", "value": "${wp_region}"},
         {"name": "WPSTATIC_BUCKET", "value": "${wp_bucket}"},
-       /* {"name": "CONTAINER_DNS", "value": "${container_dns}"},
-        {"name": "CONTAINER_DNS_ZONE", "value": "${container_dns_zone}"},*/
+       // {"name": "CONTAINER_DNS", "value": "${container_dns}"},
+       //{"name": "CONTAINER_DNS_ZONE", "value": "${container_dns_zone}"},
         {"name": "WORDPRESS_ADMIN_USER", "value": "${wordpress_admin_user}"},
         {"name": "WORDPRESS_ADMIN_PASSWORD", "value": "${wordpress_admin_password}"},
         {"name": "WORDPRESS_ADMIN_EMAIL", "value": "${wordpress_admin_email}"},
