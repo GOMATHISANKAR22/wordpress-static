@@ -1,6 +1,14 @@
+locals {
+  graviton_fargate_regions_unsupported = [
+    "af-south-1",
+    "me-south-1"
+  ]
+}
+
 variable "main_vpc_id" {
   type        = string
   description = "The VPC ID into which to launch resources."
+  default     = "vpc-0f86c4c5af246018d"
   validation {
     condition     = length(var.main_vpc_id) > 4 && substr(var.main_vpc_id, 0, 4) == "vpc-"
     error_message = "The main_vpc_id value must be a valid VPC id, starting with \"vpc-\"."
@@ -10,7 +18,9 @@ variable "main_vpc_id" {
 variable "subnet_ids" {
   type        = list(any)
   description = "A list of subnet IDs within the specified VPC where resources will be launched."
+  default     = ["subnet-0ba1f8f04b1bc10bd","subnet-0a745a42813067808","subnet-0b7919ec5903ac312","subnet-08a65f2f456b48585","subnet-06209ab112627bf20","subnet-0b7ee8a5cb5731b4a"]
 }
+
 
 variable "aws_account_id" {
   type        = string
@@ -18,10 +28,10 @@ variable "aws_account_id" {
   default = "059449770494"
 }
 
-# variable "site_domain" {
-#   type        = string
-#   description = "The site domain name to configure (without any subdomains such as 'www')"
-# }
+/*variable "site_domain" {
+  type        = string
+  description = "The site domain name to configure (without any subdomains such as 'www')"
+}*/
 
 variable "site_name" {
   type        = string
@@ -98,15 +108,23 @@ variable "cloudfront_class" {
   default     = "PriceClass_All"
 }
 
-# variable "hosted_zone_id" {
-#   type        = string
-#   description = "The Route53 HostedZone ID to use to create records in."
-# }
+variable "cloudfront_function_301_redirects" {
+  type = map(any)
+  default = {
+    "^(.*)index\\.php$" : "$1"
+  }
+  description = "A list of key value pairs of Regex match and destination for 301 redirects at CloudFront."
+}
 
-# variable "waf_enabled" {
-#   type        = bool
-#   description = "Flag to enable default WAF configuration in front of CloudFront."
-# }
+/*variable "hosted_zone_id" {
+  type        = string
+  description = "The Route53 HostedZone ID to use to create records in."
+}
+
+variable "waf_enabled" {
+  type        = bool
+  description = "Flag to enable default WAF configuration in front of CloudFront."
+}*/
 
 variable "wordpress_subdomain" {
   type        = string
@@ -129,41 +147,71 @@ variable "wordpress_admin_password" {
 }
 
 variable "wordpress_admin_email" {
-   type        = string
-   description = "The email address of the default wordpress admin user."
-   default     = "admin@example.com"
- }
+  type        = string
+  description = "The email address of the default wordpress admin user."
+  default     = "admin@example.com"
+}
 
-# variable "waf_acl_rules" {
-#   type        = list(any)
-#   description = "List of WAF rules to apply. Can be customized to apply others created outside of module."
-#   default = [
-#     {
-#       name                       = "AWS-AWSManagedRulesAmazonIpReputationList"
-#       priority                   = 0
-#       managed_rule_group_name    = "AWSManagedRulesAmazonIpReputationList"
-#       vendor_name                = "AWS"
-#       cloudwatch_metrics_enabled = true
-#       metric_name                = "AWS-AWSManagedRulesAmazonIpReputationList"
-#       sampled_requests_enabled   = true
-#     },
-#     {
-#       name                       = "AWS-AWSManagedRulesKnownBadInputsRuleSet"
-#       priority                   = 1
-#       managed_rule_group_name    = "AWSManagedRulesKnownBadInputsRuleSet"
-#       vendor_name                = "AWS"
-#       cloudwatch_metrics_enabled = true
-#       metric_name                = "AWS-AWSManagedRulesKnownBadInputsRuleSet"
-#       sampled_requests_enabled   = true
-#     },
-#     {
-#       name                       = "AWS-AWSManagedRulesBotControlRuleSet"
-#       priority                   = 2
-#       managed_rule_group_name    = "AWSManagedRulesBotControlRuleSet"
-#       vendor_name                = "AWS"
-#       cloudwatch_metrics_enabled = true
-#       metric_name                = "AWS-AWSManagedRulesBotControlRuleSet"
-#       sampled_requests_enabled   = true
-#     }
-#   ]
-# }
+variable "wordpress_memory_limit" {
+  type        = string
+  description = "The memory to allow the Wordpress process to use (in M)"
+  default     = "256M"
+}
+
+variable "wp2static_version" {
+  type        = string
+  description = "Version of WP2Static to use from https://github.com/WP2Static/wp2static/releases"
+  default     = "7.1.7"
+}
+
+variable "wp2static_s3_addon_version" {
+  type        = string
+  description = "Version of the WP2Static S3 Add-on to use from https://github.com/leonstafford/wp2static-addon-s3/releases/"
+  default     = "1.0"
+}
+
+/*variable "waf_acl_rules" {
+  type        = list(any)
+  description = "List of WAF rules to apply. Can be customized to apply others created outside of module."
+  default = [
+    {
+      name                       = "AWS-AWSManagedRulesAmazonIpReputationList"
+      priority                   = 0
+      managed_rule_group_name    = "AWSManagedRulesAmazonIpReputationList"
+      vendor_name                = "AWS"
+      cloudwatch_metrics_enabled = true
+      metric_name                = "AWS-AWSManagedRulesAmazonIpReputationList"
+      sampled_requests_enabled   = true
+    },
+    {
+      name                       = "AWS-AWSManagedRulesKnownBadInputsRuleSet"
+      priority                   = 1
+      managed_rule_group_name    = "AWSManagedRulesKnownBadInputsRuleSet"
+      vendor_name                = "AWS"
+      cloudwatch_metrics_enabled = true
+      metric_name                = "AWS-AWSManagedRulesKnownBadInputsRuleSet"
+      sampled_requests_enabled   = true
+    },
+    {
+      name                       = "AWS-AWSManagedRulesBotControlRuleSet"
+      priority                   = 2
+      managed_rule_group_name    = "AWSManagedRulesBotControlRuleSet"
+      vendor_name                = "AWS"
+      cloudwatch_metrics_enabled = true
+      metric_name                = "AWS-AWSManagedRulesBotControlRuleSet"
+      sampled_requests_enabled   = true
+    }
+  ]
+}*/
+
+variable "graviton_codebuild_enabled" {
+  type        = bool
+  default     = false
+  description = "Flag that controls whether CodeBuild should use Graviton-based build agents in [supported regions](https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-compute-types.html)."
+}
+
+variable "graviton_fargate_enabled" {
+  type        = bool
+  default     = false
+  description = "Flag that controls whether ECS Fargate should use Graviton-based containers in [supported regions]https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate-Regions.html)."
+}
